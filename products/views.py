@@ -23,7 +23,13 @@ class CustomPagination(PageNumberPagination):
 
 
 class ArticleListAPIView(APIView):
-    permission_classes = [AllowAny]
+    def get_permissions(self):
+        # 로그인 없이 게시물 목록 조회가능
+        if self.request.method == "GET":
+            return [AllowAny()]
+        # 로그인 필수로 게시물 작성 가능
+        elif self.request.method == "POST":
+            return [IsAuthenticated()]
 
     def get(self, request):
         articles = Article.objects.all()
@@ -33,11 +39,6 @@ class ArticleListAPIView(APIView):
         return paginator.get_paginated_response(serializer.data)
 
     def post(self, request):
-        if not request.user.is_authenticated:
-            return Response(
-                {"detail": "로그인이 필요합니다."}, status=status.HTTP_403_FORBIDDEN
-            )
-
         serializer = ArticleSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save(author=request.user)
