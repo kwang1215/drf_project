@@ -14,7 +14,7 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = "__all__"
-        read_only_fields = ("article",)
+        read_only_fields = ("author", "created_at", "updated_at")
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
@@ -23,10 +23,12 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class ArticleSerializer(serializers.ModelSerializer):
+    author = AuthorSerializer(read_only=True)
 
     class Meta:
         model = Article
         fields = "__all__"
+        read_only_fields = ("author",)
 
 
 class ArticleDetailSerializer(ArticleSerializer):
